@@ -23,7 +23,7 @@ import torch
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch', type=int, default=0, help='epoch to start training from')
-parser.add_argument('--n_epochs', type=int, default=200, help='number of epochs of training')
+parser.add_argument('--n_epochs', type=int, default=20000, help='number of epochs of training')
 parser.add_argument('--dataset_name', type=str, default="edges2shoes", help='name of the dataset')
 parser.add_argument('--batch_size', type=int, default=1, help='size of the batches')
 parser.add_argument('--lr', type=float, default=0.0001, help='adam: learning rate')
@@ -35,7 +35,7 @@ parser.add_argument('--img_height', type=int, default=128, help='size of image h
 parser.add_argument('--img_width', type=int, default=128, help='size of image width')
 parser.add_argument('--channels', type=int, default=3, help='number of image channels')
 parser.add_argument('--sample_interval', type=int, default=400, help='interval between sampling images from generators')
-parser.add_argument('--checkpoint_interval', type=int, default=-1, help='interval between saving model checkpoints')
+parser.add_argument('--checkpoint_interval', type=int, default=1, help='interval between saving model checkpoints')
 parser.add_argument('--n_downsample', type=int, default=2, help='number downsampling layers in encoder')
 parser.add_argument('--n_residual', type=int, default=3, help='number of residual blocks in encoder / decoder')
 parser.add_argument('--dim', type=int, default=64, help='number of filters in first encoder layer')
@@ -123,7 +123,9 @@ def sample_images(batches_done):
     img_samples = None
     for img1, img2 in zip(imgs['A'], imgs['B']):
         # Create copies of image
+        # X1 = transform.resize(X1,(128,128))
         X1 = img1.unsqueeze(0).repeat(opt.style_dim, 1, 1, 1)
+        print(img1.size)
         X1 = Variable(X1.type(Tensor))
         # Get interpolated style codes
         s_code = np.repeat(np.linspace(-1, 1, opt.style_dim)[:, np.newaxis], opt.style_dim, 1)
