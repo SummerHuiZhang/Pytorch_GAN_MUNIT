@@ -35,7 +35,7 @@ parser.add_argument('--img_height', type=int, default=128, help='size of image h
 parser.add_argument('--img_width', type=int, default=128, help='size of image width')
 parser.add_argument('--channels', type=int, default=3, help='number of image channels')
 parser.add_argument('--sample_interval', type=int, default=400, help='interval between sampling images from generators')
-parser.add_argument('--checkpoint_interval', type=int, default=1, help='interval between saving model checkpoints')
+parser.add_argument('--checkpoint_interval', type=int, default=100, help='interval between saving model checkpoints')
 parser.add_argument('--n_downsample', type=int, default=2, help='number downsampling layers in encoder')
 parser.add_argument('--n_residual', type=int, default=3, help='number of residual blocks in encoder / decoder')
 parser.add_argument('--dim', type=int, default=64, help='number of filters in first encoder layer')
@@ -150,6 +150,7 @@ fake = 0
 
 prev_time = time.time()
 for epoch in range(opt.epoch, opt.n_epochs):
+    print "epoch=%d, total epochs=%d" % (epoch,opt.n_epochs)
     for i, batch in enumerate(dataloader):
 
         # Set model input
