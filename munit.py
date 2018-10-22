@@ -22,8 +22,8 @@ import torch.nn.functional as F
 import torch
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--epoch', type=int, default=0, help='epoch to start training from')
-parser.add_argument('--n_epochs', type=int, default=20000, help='number of epochs of training')
+parser.add_argument('--epoch', type=int, default=18000, help='epoch to start training from')
+parser.add_argument('--n_epochs', type=int, default=36000, help='number of epochs of training')
 parser.add_argument('--dataset_name', type=str, default="edges2shoes", help='name of the dataset')
 parser.add_argument('--batch_size', type=int, default=1, help='size of the batches')
 parser.add_argument('--lr', type=float, default=0.0001, help='adam: learning rate')
@@ -35,7 +35,7 @@ parser.add_argument('--img_height', type=int, default=128, help='size of image h
 parser.add_argument('--img_width', type=int, default=128, help='size of image width')
 parser.add_argument('--channels', type=int, default=3, help='number of image channels')
 parser.add_argument('--sample_interval', type=int, default=400, help='interval between sampling images from generators')
-parser.add_argument('--checkpoint_interval', type=int, default=100, help='interval between saving model checkpoints')
+parser.add_argument('--checkpoint_interval', type=int, default=2000, help='interval between saving model checkpoints')
 parser.add_argument('--n_downsample', type=int, default=2, help='number downsampling layers in encoder')
 parser.add_argument('--n_residual', type=int, default=3, help='number of residual blocks in encoder / decoder')
 parser.add_argument('--dim', type=int, default=64, help='number of filters in first encoder layer')
@@ -121,11 +121,12 @@ def sample_images(batches_done):
     """Saves a generated sample from the validation set"""
     imgs = next(iter(val_dataloader))
     img_samples = None
+    print ("Enter samples images~~~~~~~")
     for img1, img2 in zip(imgs['A'], imgs['B']):
         # Create copies of image
         # X1 = transform.resize(X1,(128,128))
         X1 = img1.unsqueeze(0).repeat(opt.style_dim, 1, 1, 1)
-        print(img1.size)
+        print("The size of image1=%d", img1.size)
         X1 = Variable(X1.type(Tensor))
         # Get interpolated style codes
         s_code = np.repeat(np.linspace(-1, 1, opt.style_dim)[:, np.newaxis], opt.style_dim, 1)
@@ -147,10 +148,15 @@ def sample_images(batches_done):
 # Adversarial ground truths
 valid = 1
 fake = 0
+f= open("guru99.txt","w+")
+c1_list=open("c1_list.txt","w+")
+c2_list=open("c2_list.txt","w+")
+s1_list=open("s1_list.txt","w+")
+s2_list=open("s2_list.txt","w+")
 
 prev_time = time.time()
 for epoch in range(opt.epoch, opt.n_epochs):
-    print "epoch=%d, total epochs=%d" % (epoch,opt.n_epochs)
+    print("epoch=%d, total epochs=%d", epoch,opt.n_epochs)
     for i, batch in enumerate(dataloader):
 
         # Set model input
@@ -171,6 +177,12 @@ for epoch in range(opt.epoch, opt.n_epochs):
         c_code_1, s_code_1 = Enc1(X1)
         c_code_2, s_code_2 = Enc2(X2)
 
+        # save shared latent as image features
+        c1_list=c1_list.append(c_code_1)
+        c2_list=c2_list.append(c_code_2)
+        s1_list=s1_list.append(s_code_1)
+        s2_list=s2_list.append(s_code_2)
+       
         # Reconstruct images
         X11 = Dec1(c_code_1, s_code_1)
         X22 = Dec2(c_code_2, s_code_2)
